@@ -25,7 +25,7 @@ async function getLLMResponse(userMessage) {
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000" // REQUIRED by OpenRouter
+      "HTTP-Referer": process.env.BACKEND_URL // REQUIRED by OpenRouter
     },
     body: JSON.stringify(body)
   });
