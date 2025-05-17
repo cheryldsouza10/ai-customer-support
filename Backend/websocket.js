@@ -4,7 +4,7 @@ const Message = require("./models/Messages");
 const User = require("./models/Users");
 const { getLLMResponse } = require("./controllers/llm");
 
-const wss = new WebSocket.Server({ port: 3002 }, () => {
+const wss = new WebSocket.Server({ port: process.env.WS_PORT }, () => {
   console.log("WebSocket server running on ws://localhost:3002");
 });
 

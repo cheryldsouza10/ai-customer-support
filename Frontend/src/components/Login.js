@@ -10,7 +10,7 @@ export default function Login({ onLoginSuccess, setUser }) {
     if (!email || !password) return;
 
     try {
-      const res = await axios.post("http://localhost:3000/api/login/login", {
+      const res = await axios.post(`${process.env.BACKEND_URL}/api/login/login`, {
         email,
         password,
       });

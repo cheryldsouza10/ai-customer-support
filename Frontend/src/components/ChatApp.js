@@ -22,7 +22,7 @@ export default function ChatApp({user, onLogout}) {
   const fetchMessages = async () => {
     const token = localStorage.getItem("jwtToken");
     try {
-      const res = await axios.get(`http://localhost:3000/api/messages/${user}`, {
+      const res = await axios.get(`${process.env.BACKEND_URL}/api/messages/${user}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(res.data);
@@ -32,7 +32,7 @@ export default function ChatApp({user, onLogout}) {
   };
 
   const initWebSocket = () => {
-    socketRef.current = new WebSocket("ws://localhost:3002");
+    socketRef.current = new WebSocket(process.env.WEBSOCKET_URL);
 
     socketRef.current.onopen = () => {
       console.log("WebSocket connected");
