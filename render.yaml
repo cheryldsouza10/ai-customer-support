@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: backend
+    env: docker
+    repo: https://github.com/cheryldsouza10/ai-customer-support.git
+    plan: free
+    region: oregon
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: environ
+        value: prod
+
+  - type: web
+    name: frontend
+    env: docker
+    repo: https://github.com/cheryldsouza10/ai-customer-support.git
+    plan: free
+    region: oregon
+    dockerfilePath: frontend/Dockerfile
