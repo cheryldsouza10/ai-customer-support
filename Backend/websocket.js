@@ -4,7 +4,7 @@ const Message = require("./models/Messages");
 const User = require("./models/Users");
 const { getLLMResponse } = require("./controllers/llm");
 
-function attachWebsocket(server) {
+const attachWebsocket = (server) => {
   const wss = new WebSocket.Server({ server }, () => {
     console.log("WebSocket server running on 3002");
   });
@@ -57,4 +57,4 @@ function attachWebsocket(server) {
   });
 }
 
-module.exports = attachWebSocket;
+module.exports = attachWebsocket;
