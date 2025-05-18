@@ -7,6 +7,7 @@ export default function Login({ onLoginSuccess, setUser }) {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    console.log(process.env)
     if (!email || !password) return;
 
     try {
