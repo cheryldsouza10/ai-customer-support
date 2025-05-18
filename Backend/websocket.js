@@ -12,44 +12,43 @@ const attachWebsocket = (server) => {
   wss.on("connection", (ws, req) => {
     console.log('Client connected');
     let user = null;
-  
+
     ws.on("message", async (data) => {
       try {
         const parsed = JSON.parse(data);
-        console.log('Received:', parsed);
-        // if (parsed.type === "auth") {
-        //   const decoded = jwt.verify(data.token, process.env.JWT_SECRET);
-        //   user = await User.findById(decoded.id);
-        //   if (!user) return ws.close();
-        //   return;
-        // }
-  
+        if (parsed.type === "auth") {
+        const decoded = jwt.verify(parsed.token, process.env.JWT_SECRET);
+        user = await User.findById(decoded.id);
+        if (!user) return ws.close();
+        return;
+      }
+
         if (parsed.from) {
           user = await User.findById(parsed.from);
         }
-  
+
         await Message.create({
           userId: user._id,
           text: parsed.text,
           from: "user",
           timestamp: new Date(),
         });
-  
-         const aiReply = await getLLMResponse(parsed.text);
-         const reply = {
+
+        const aiReply = await getLLMResponse(parsed.text);
+        const reply = {
           text: aiReply,
           timestamp: new Date().toISOString(),
           sender: 'AI Bot',
           from: "bot"
         };
-        ws.send(JSON.stringify(reply));
-        
+
         await Message.create({
           userId: user._id,
           text: reply.text,
           from: "bot",
           timestamp: new Date(),
         });
+        ws.send(JSON.stringify(reply));
       } catch (err) {
         console.error("WebSocket error:", err);
       }

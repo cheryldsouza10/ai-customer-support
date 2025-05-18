@@ -10,7 +10,7 @@ function App() {
   const [user, setUser] = useState();
 
   return loggedIn ? (
-    <ChatApp user={user} onLogout = {() => setLoggedIn(false)}/>
+    <ChatApp user={user} setLoggedIn={setLoggedIn}/>
   ) : (
     <Login setUser={setUser} onLoginSuccess={() => setLoggedIn(true)} />
   );

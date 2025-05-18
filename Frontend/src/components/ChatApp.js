@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./ChatApp.css";
-import Login from "./Login";
 
-export default function ChatApp({user, onLogout}) {
+export default function ChatApp({user, setLoggedIn}) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [typing, setTyping] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     if (token) {
-      setIsAuthenticated(true);
       fetchMessages();
       initWebSocket(token);
     }
@@ -22,7 +18,6 @@ export default function ChatApp({user, onLogout}) {
   const fetchMessages = async () => {
     const token = localStorage.getItem("jwtToken");
     try {
-      console.log(process.env)
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${user}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -33,39 +28,62 @@ export default function ChatApp({user, onLogout}) {
   };
 
   const initWebSocket = () => {
+    //Create websocket connection
     socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
     socketRef.current.onopen = () => {
       console.log("WebSocket connected");
   
-      // const token = localStorage.getItem("jwtToken");
-      // if (token) {
-      //   socketRef.current.send(JSON.stringify({ type: "auth", token }));
-      // }
+      const token = localStorage.getItem("jwtToken");
+      if (token) {
+        const authPayload = JSON.stringify({ type: "auth", token });
+  
+        if (socketRef.current.readyState === WebSocket.OPEN) {
+          socketRef.current.send(authPayload);
+        } else {
+          console.warn("WebSocket not open yet, delaying auth...");
+          const interval = setInterval(() => {
+            if (socketRef.current.readyState === WebSocket.OPEN) {
+              socketRef.current.send(authPayload);
+              clearInterval(interval);
+            }
+          }, 100); // Retry every 100ms
+        }
+      } else {
+        console.error("JWT token not found");
+      }
     };
 
     socketRef.current.onmessage = (event) => {
       const message = {...JSON.parse(event.data), isReply: true};
       setMessages((prevMessages) => [...prevMessages, message]);
-      setTyping(false);
-      console.log(messages);
     };
 
-    socketRef.current.onclose = () => console.log("WebSocket disconnected");
-    socketRef.current.onerror = (error) => console.error("WebSocket error:", error);
+    socketRef.current.onclose = () => {
+      handleLogout();
+      console.log("WebSocket disconnected");
+    }
+    socketRef.current.onerror = (error) => {
+      handleLogout();
+      alert('Websocket connection failed');
+      console.error("WebSocket error:", error);
+    }
   };
 
   const handleSend = async () => {
-    setTyping(true);
     if (!input.trim()) return;
-    console.log(user);
 
     const newMessage = { text: input, timestamp: new Date().toISOString(), from: user };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInput("");
 
     try {
-      socketRef.current.send(JSON.stringify(newMessage));
+      if (socketRef.current.readyState === WebSocket.OPEN) {
+        socketRef.current.send(JSON.stringify(newMessage));
+      } else {
+        alert("Connection Error");
+        handleLogout();
+      }
     } catch (error) {
       console.error("Failed to send message", error);
     }
@@ -74,19 +92,11 @@ export default function ChatApp({user, onLogout}) {
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userId");
-    setIsAuthenticated(false);
+    setLoggedIn(false);
     if (socketRef.current) {
       socketRef.current.close();
     }
   };
-
-  if (!isAuthenticated) {
-    // return <Login
-    //   setIsAuthenticated={setIsAuthenticated}
-    //   initWebSocket={initWebSocket}
-    // />
-    return null;
-  }
 
   return (
     <div className="chat-container">

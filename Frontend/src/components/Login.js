@@ -22,7 +22,11 @@ export default function Login({ onLoginSuccess, setUser }) {
       setUser(userId);
       onLoginSuccess();
     } catch (err) {
-      alert("Login failed");
+      if (err?.status === 401) {
+        alert("Login failed: Invalid Password")
+      } else {
+        alert(`Login failed: ${err.message}`);
+      }
     }
   };
 
@@ -46,9 +50,6 @@ export default function Login({ onLoginSuccess, setUser }) {
         <button className="login-button" onClick={handleLogin}>
           Login
         </button>
-        {/* <button className="login-button" onClick={handleRegister}>
-          Register
-        </button> */}
       </div>
     </div>
   );
