@@ -9,14 +9,14 @@ require("dotenv").config();
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors({
+const corsOptions = {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
-}));
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
-app.options('*', cors());
 
 connectDB();
 
