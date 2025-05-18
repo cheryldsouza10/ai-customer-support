@@ -22,6 +22,7 @@ export default function ChatApp({user, onLogout}) {
   const fetchMessages = async () => {
     const token = localStorage.getItem("jwtToken");
     try {
+      console.log(process.env)
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${user}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
