@@ -7,7 +7,6 @@ export default function Login({ onLoginSuccess, setUser }) {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    console.log(process.env)
     if (!email || !password) return;
 
     try {
@@ -33,10 +32,10 @@ export default function Login({ onLoginSuccess, setUser }) {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Login</h2>
+        <h2>Login/SignUp</h2>
         <input
           className="login-input"
-          placeholder="Email"
+          placeholder="Username/Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
